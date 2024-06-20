@@ -6,11 +6,11 @@ SD Events (SDE) is an experimental proposal for defining event sheets/macros to 
 
 ## DSL
 
-Event sheets/macros are written using a dedicated DSL. Here's an overview of the key components:
+Event sheets/macros are written using a dedicated DSL. The SDE DSL is a subset of Python. This means that any valid Python code is also valid SDE code. However, SDE code is not guaranteed to be valid Python code, as it may contain additional syntax and constructs specific to the SDE DSL. Here's an overview of the key components:
 
 ### Event sheets
 
-A script can contain one or multiple event sheets. When multiple event sheets are present, they execute in a top-down order, from the first sheet to the last.
+A script can contain one or multiple event sheets. When multiple event sheets are present, they execute in a top-down order, from the first sheet to the last. Event sheets are defined in `.sheet` files. Sheet files are text files that contain event sheets/macros written in the SDE DSL. The file extension for sheet files is `.sheet`. Sheet files can be executed using the sde command-line tool.
 
 ```
 Sheet EventSheet:
@@ -48,7 +48,20 @@ Prompt → Generator → Control → Effect → Image
 
 ## Defining Core Objects
 
-Core objects can be defined using three different approaches:
+Objects in SDE can be defined **outside of Sheet blocks** in sheet files using the obj keyword. This allows for reusable object definitions that can be used across multiple sheets. Object definitions must be valid Python code and must follow the syntax and conventions of the SDE DSL.
+
+```
+obj MyGenerator:
+  props:
+    model: "stable_diffusion_v1"
+  func:
+    custom_method: lambda self: None
+
+Sheet MySheet:
+  # your actions
+```
+
+Core objects can be set using three different approaches:
 
 1. **Calls:** Core objects can be instantiated by calling their constructors directly.
 
