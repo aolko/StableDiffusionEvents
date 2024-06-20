@@ -1,2 +1,239 @@
-# StableDiffusionEvents
-Events Sheets for Stable Diffusion
+# SD Events (SDE)
+
+## Description
+
+SD Events (SDE) is an experimental proposal for defining event sheets/macros to operate Stable Diffusion in a structured and efficient manner. This documentation outlines the Domain-Specific Language (DSL) syntax and core objects available for creating event sheets.
+
+## DSL
+
+Event sheets/macros are written using a dedicated DSL. Here's an overview of the key components:
+
+### Event sheets
+
+A script can contain one or multiple event sheets. When multiple event sheets are present, they execute in a top-down order, from the first sheet to the last.
+
+```
+Sheet EventSheet:
+  ...
+```
+
+```
+Sheet EventSheet1:
+  ...
+
+Sheet EventSheet2:
+  ...
+```
+
+### Order of operation
+
+Within an event sheet, operations are executed sequentially from top to bottom. This allows for a clear and predictable flow of actions.
+
+### Core objects
+
+SDE introduces a set of built-in core objects that represent fundamental entities in Stable Diffusion tasks:
+
+- **Prompt:** An image prompt. Can be `positive` or `negative`.
+- **Generator:** An image generator. Has most of the generation parameters.
+- **Concept:** An image concept, i.e. LoRA, LyCORIS, DORA, TI, etc.
+- **Effect:** An image effect or transformation.
+- **Image:** A resulting image.
+- **Control:** Controlnet-related parameters.
+
+The core objects are interconnected and work together to produce the desired image:
+
+```
+Prompt → Generator → Control → Effect → Image
+```
+
+## Defining Core Objects
+
+Core objects can be defined using three different approaches:
+
+1. **Calls:** Core objects can be instantiated by calling their constructors directly.
+
+   ```
+   Prompt();
+   Generator();
+   ...
+   ```
+
+2. **Method Calls:** Core objects can also be defined by calling the `set` method on the corresponding object.
+
+   ```
+   Prompt.set();
+   Generator.set();
+   ...
+   ```
+
+3. **Inline Definition:** Core objects can be defined inline by providing their properties as an object literal.
+
+   ```
+   Generator.set({
+     "model": "stable_diffusion_v1",
+     "concepts": [
+       Concept({
+         "path": "my/lora.safetensors",
+         "strength": 1
+       }),
+       Concept({
+         "path": "my/lyco.safetensors",
+         "strength": 1
+       })
+     ],
+     "steps": 50
+   });
+   ```
+
+## Common Methods
+
+To interact with core objects, SDE provides a set of common methods:
+
+| Method | Type | Value | Description |
+|--------|------|-------|-------------|
+| set | Function | n/a | Sets a property value |
+| get | Function | n/a | Retrieves a property value |
+
+## Prompt Object
+
+| Method | Type | Value | Description |
+|--------|------|-------|-------------|
+| isPositive | Function | n/a | Checks if the prompt is positive |
+| isNegative | Function | n/a | Checks if the prompt is negative |
+| toggle | Function | n/a | Toggles the prompt polarity |
+| positive | Property | \<text> | Sets the positive image prompt |
+| negative | Property | \<text> | Sets the negative image prompt |
+
+```
+prompt.set({"positive":"A beautiful sunset"})
+prompt.toggle() // Switches to negative prompt
+```
+
+## Generator Object
+
+| Method | Type | Value | Description |
+|--------|------|-------|-------------|
+| seed | Property | \<number> | Generation seed |
+| model | Property | \<Model/array> | Stable Diffusion model(s) to use |
+| concepts | Property | \<array> | Array of image concepts |
+| scheduler | Property | \<text/enum> | Scheduler type |
+| steps | Property | \<number> | Number of generation steps |
+| CFG | Property | \<number> | Strictness of prompt adherence |
+| VAE | Property | \<text> | Stable Diffusion VAE |
+| VAE.precision | Property | \<text/enum> | VAE precision level |
+
+```
+generator.model("stable_diffusion_v1")
+generator.concepts = [Concept(
+      "path":"my/lora.safetensors"
+      "strength":1
+),
+    Concept(
+      "path":"my/lyco.safetensors"
+      "strength":1
+    )];
+generator.steps = 50
+- or -
+generator.set({
+  "model":"stable_diffusion_v1",
+  "concepts":[
+    Concept(
+      "path":"my/lora.safetensors"
+      "strength":1
+    ),
+    Concept(
+      "path":"my/lyco.safetensors"
+      "strength":1
+    )
+  ],
+  "steps":50,
+})
+```
+
+### Model Object
+
+| Method | Type | Value | Description |
+|--------|------|-------|-------------|
+| set | Function | n/a | Sets the Stable Diffusion model |
+| get | Function | n/a | Retrieves the Stable Diffusion model |
+| type | Property | n/a | Model type (huggingface, web, local) |
+| path | Property | \<text> | Path to the model file |
+
+```
+generator.set({"model":{"type":"huggingface","path":"stable_diffusion_v2"}});
+- or -
+model.type = "huggingface";
+model.path = "stable_diffusion_v2";
+```
+
+### Concept Object
+
+| Method | Type | Value | Description |
+|--------|------|-------|-------------|
+| set | Function | n/a | Sets a property value |
+| get | Function | n/a | Retrieves a property value |
+| path | Property | \<text> | Path to the concept file |
+| strength | Property | \<number> | Strength of the concept |
+
+```
+generator.set({"concepts":[{"path":"path/to/concept.safetensor",strength:1.0}]});
+- or -
+concept.path = "path/to/concept.safetensor";
+concept.strength = 0.8;
+```
+
+## Control Object
+
+| Method | Type | Value | Description |
+|--------|------|-------|-------------|
+| type | Property | \<text/enum> | Controlnet type (IP-adapter/controlnet) |
+| model | Property | \<text/enum> | Controlnet model |
+| control | Property | \<number/enum> | Level of control |
+| weight | Property | \<number> | Controlnet weight |
+| begin | Property | \<number> | Beginning step |
+| end | Property | \<number> | Ending step |
+| reference | Property | \<text> | Reference image path |
+
+```
+control.type = "controlnet";
+control.model = "controlnet_v1";
+control.weight = 0.7;
+```
+
+## Effect Object
+
+| Method | Type | Value | Description |
+|--------|------|-------|-------------|
+| list | Function | n/a | Lists available effects |
+| ? | ? | \<text> | Placeholder for effect definition |
+
+## Image Object
+
+| Method | Type | Value | Description |
+|--------|------|-------|-------------|
+| width | Property | \<number> | Width of the resulting image |
+| height | Property | \<number> | Height of the resulting image |
+
+```
+image.width = 1024;
+image.height = 768;
+```
+
+## Examples
+
+```
+prompt.set({"positive":"Generate a cityscape"})
+generator.model = "art_generator.safetensors"
+generator.concepts = [
+    Concept(
+      "path":"my/lora.safetensors"
+      "strength":1
+    ),
+    Concept(
+      "path":"my/lyco.safetensors"
+      "strength":1
+    )
+  ]
+image.width = 800;
+image.height = 600;
+```
