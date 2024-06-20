@@ -232,6 +232,79 @@ image.width = 1024;
 image.height = 768;
 ```
 
+## YAML Format
+
+SDE sheets can also be defined using a YAML format. The YAML format allows for more flexibility and customization in the definition of objects and actions in the sheet. The YAML format consists of the following sections:
+
+- `dependencies`: A list of Python packages that the sheet depends on.
+- `objects`: A dictionary of object definitions, where each object definition consists of a `name` field and a `props` field. The `props` field is a dictionary of property definitions, where each property definition consists of a `type` field, a `value` field, and a `required` field.
+- `sheets`: A dictionary of sheet definitions, where each sheet definition consists of a list of actions. Each action is a dictionary that consists of an `action` field and a `props` field. The `action` field specifies the type of action, and the `props` field specifies the properties of the action.
+
+Here's an example of a YAML file that defines a single sheet:
+
+```yaml
+dependencies:
+  - os
+  - crypto
+
+objects:
+  MyGenerator:
+    props:
+      model:
+        type: str
+        value: "stable_diffusion_v1"
+        required: true
+      concepts:
+        type: list[Concept]
+        value: []
+        required: false
+      steps:
+        type: int
+        value: 50
+        required: false
+
+sheets:
+  mySheet:
+    - action: prompt
+      props:
+        positive: "A beautiful sunset"
+    - action: create
+      type: MyGenerator
+      props:
+        model: "stable_diffusion_v2"
+        concepts:
+          - path: "my/lora.safetensors"
+            strength: 1.0
+        steps: 75
+    - action: image
+      props:
+        width: 1024
+        height: 768
+        path: "output.png"
+```
+
+## CLI Commands
+
+The `sde.py` script provides the following CLI commands:
+
+- `sde.py <sheet_file>`: Executes the specified SDE sheet file.
+- `sde.py --from-yaml <yaml_file> <sheet_file>`: Converts the specified YAML file to a SDE sheet file, and saves the result to the specified sheet file.
+
+Here's an example of how to use the `sde.py` script to execute a SDE sheet file:
+
+```
+python sde.py mySheet.sheet
+```
+
+Here's an example of how to use the `sde.py` script to convert a YAML file to a SDE sheet file:
+
+```
+python sde.py --from-yaml myYaml.yaml mySheet.sheet
+```
+
+This example demonstrates how to define sheets in a YAML format, and how to use the `sde.py` script to convert YAML files to SDE sheet files and to execute SDE sheet files.
+
+
 ## Examples
 
 ```
