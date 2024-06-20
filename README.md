@@ -61,7 +61,7 @@ Sheet MySheet:
   # your actions
 ```
 
-Core objects can be set using three different approaches:
+Core objects can be called using three different approaches:
 
 1. **Calls:** Core objects can be instantiated by calling their constructors directly.
 
